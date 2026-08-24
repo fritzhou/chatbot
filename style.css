@@ -217,6 +217,7 @@ body {
 .bubble-group {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   max-width: 82%;
   margin-bottom: 12px;
 }
@@ -290,6 +291,7 @@ body {
 
 .answer-card {
   align-self: flex-start;
+  flex-shrink: 0;
   max-width: 92%;
   width: 100%;
   background: var(--card);
