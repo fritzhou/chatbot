@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Staff Sign-In — School Inquiry Assistant</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body class="login-body">
+  <main class="login-card">
+    <div class="login-mark">
+      <span class="stamp"><img src="logo-mark.svg" alt="" class="mark-icon" /></span>
+    </div>
+    <p class="eyebrow">Records Desk · Administration</p>
+    <h1>Staff Sign-In</h1>
+    <p id="unauthorized-note" class="notice" hidden>
+      That account isn't registered as an administrator. Contact a super admin
+      to be added to the <code>admins</code> table.
+    </p>
+    <form id="login-form">
+      <label>
+        Email
+        <input type="email" name="email" required autocomplete="username" />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" required autocomplete="current-password" />
+      </label>
+      <button type="submit">Sign in</button>
+      <p id="login-error" class="notice notice-error" hidden></p>
+    </form>
+    <a class="back-link" href="index.html">← Back to student desk</a>
+  </main>
+
+  <script type="module">
+    import { signIn, getSession, getAdminProfile } from "./auth.js";
+
+    const form = document.getElementById("login-form");
+    const errorEl = document.getElementById("login-error");
+    const unauthorizedNote = document.getElementById("unauthorized-note");
+
+    if (new URLSearchParams(location.search).get("unauthorized")) {
+      unauthorizedNote.hidden = false;
+    }
+
+    // If already signed in as a valid admin, skip straight to the dashboard.
+    (async () => {
+      const session = await getSession();
+      if (session) {
+        const admin = await getAdminProfile();
+        if (admin) window.location.href = "admin-dashboard.html";
+      }
+    })();
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorEl.hidden = true;
+      const formData = new FormData(form);
+      const submitBtn = form.querySelector("button");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Signing in…";
+
+      const { error } = await signIn(formData.get("email"), formData.get("password"));
+
+      if (error) {
+        errorEl.textContent = error.message;
+        errorEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign in";
+        return;
+      }
+
+      const admin = await getAdminProfile();
+      if (!admin) {
+        window.location.href = "admin-login.html?unauthorized=1";
+        return;
+      }
+      window.location.href = "admin-dashboard.html";
+    });
+  </script>
+</body>
+</html>

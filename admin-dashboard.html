@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — School Inquiry Assistant</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+<div class="office">
+
+  <header class="office-header">
+    <div class="office-header__mark"><span class="stamp"><img src="logo-mark.svg" alt="" class="mark-icon" /></span></div>
+    <div class="office-header__text">
+      <p class="eyebrow">Records Desk · Administration</p>
+      <h1>Knowledge Base Manager</h1>
+    </div>
+    <div class="office-header__meta">
+      <span id="admin-name" class="pill">…</span>
+      <button id="sign-out-btn" class="ghost-btn">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="tab-folder" id="tab-nav" aria-label="Dashboard sections">
+    <button class="tab active" data-tab="faqs">FAQs</button>
+    <button class="tab" data-tab="categories">Categories</button>
+    <button class="tab" data-tab="unanswered">Unanswered <span id="unanswered-badge" class="badge" hidden></span></button>
+    <button class="tab" data-tab="analytics">Analytics</button>
+    <button class="tab" data-tab="audit">Audit Log</button>
+  </nav>
+
+  <main class="office-body">
+
+    <!-- ===================== FAQs ===================== -->
+    <section id="panel-faqs" class="panel active">
+      <div class="panel-toolbar">
+        <div class="filters">
+          <select id="filter-status">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="needs_review">Needs review</option>
+            <option value="expired">Expired</option>
+          </select>
+          <select id="filter-category"><option value="">All categories</option></select>
+          <select id="filter-language">
+            <option value="">All languages</option>
+            <option value="en">English</option>
+            <option value="fil">Filipino</option>
+            <option value="ceb">Cebuano</option>
+          </select>
+        </div>
+        <button id="new-faq-btn" class="primary-btn">+ New FAQ</button>
+      </div>
+      <div class="table-wrap">
+        <table class="record-table" id="faq-table">
+          <thead>
+            <tr>
+              <th>Question</th><th>Category</th><th>Lang</th><th>Priority</th>
+              <th>Status</th><th>Origin</th><th>Verified</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== Categories ===================== -->
+    <section id="panel-categories" class="panel">
+      <div class="panel-toolbar">
+        <h2 class="panel-title">Categories</h2>
+      </div>
+      <form id="category-form" class="inline-form">
+        <input type="text" id="category-name" placeholder="Category name" required />
+        <input type="text" id="category-description" placeholder="Description (optional)" />
+        <button type="submit" class="primary-btn">Add category</button>
+      </form>
+      <div class="table-wrap">
+        <table class="record-table" id="category-table">
+          <thead><tr><th>Name</th><th>Description</th><th>Active</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== Unanswered ===================== -->
+    <section id="panel-unanswered" class="panel">
+      <div class="panel-toolbar">
+        <div class="filters">
+          <select id="unanswered-status">
+            <option value="new">New</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="converted">Converted</option>
+            <option value="ignored">Ignored</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="record-table" id="unanswered-table">
+          <thead><tr><th>Question</th><th>Detected keywords</th><th>Asked</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== Analytics ===================== -->
+    <section id="panel-analytics" class="panel">
+      <div class="stat-grid" id="stat-grid"></div>
+      <div class="analytics-columns">
+        <div>
+          <h2 class="panel-title">Most asked</h2>
+          <table class="record-table"><tbody id="top-matched-body"></tbody></table>
+        </div>
+        <div>
+          <h2 class="panel-title">Needs a rewrite (most 👎)</h2>
+          <table class="record-table"><tbody id="low-rated-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Audit Log ===================== -->
+    <section id="panel-audit" class="panel">
+      <div class="table-wrap">
+        <table class="record-table" id="audit-table">
+          <thead><tr><th>When</th><th>Action</th><th>Table</th><th>Record</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===================== FAQ Form Modal ===================== -->
+<dialog id="faq-dialog">
+  <form id="faq-form" method="dialog" class="faq-form">
+    <h2 id="faq-dialog-title">New FAQ</h2>
+    <input type="hidden" id="faq-id" />
+    <input type="hidden" id="faq-source-unanswered-id" />
+
+    <label>Question<textarea id="faq-question" required></textarea></label>
+    <label>Answer<textarea id="faq-answer" required rows="4"></textarea></label>
+
+    <div class="form-row">
+      <label>Category
+        <select id="faq-category"></select>
+      </label>
+      <label>Language
+        <select id="faq-language">
+          <option value="en">English</option>
+          <option value="fil">Filipino</option>
+          <option value="ceb">Cebuano</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Priority
+        <input type="number" id="faq-priority" value="0" min="0" max="10" />
+      </label>
+      <label>Status
+        <select id="faq-status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="needs_review">Needs review</option>
+          <option value="expired">Expired</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Source name<input type="text" id="faq-source-name" /></label>
+      <label>Source URL<input type="url" id="faq-source-url" /></label>
+    </div>
+    <label>Last verified<input type="date" id="faq-last-verified" /></label>
+
+    <fieldset class="keyword-fieldset">
+      <legend>Keywords (used for matching — add several)</legend>
+      <div id="keyword-rows"></div>
+      <button type="button" id="add-keyword-row" class="ghost-btn">+ Add keyword</button>
+    </fieldset>
+
+    <label id="auto-translate-row" class="checkbox-row" hidden>
+      <input type="checkbox" id="faq-auto-translate" checked />
+      Auto-translate this FAQ into Filipino and Cebuano (creates two extra rows, each marked "needs review")
+    </label>
+
+    <p id="faq-form-error" class="notice notice-error" hidden></p>
+
+    <div class="dialog-actions">
+      <button type="button" id="faq-cancel-btn" class="ghost-btn">Cancel</button>
+      <button type="submit" id="faq-save-btn" class="primary-btn">Save FAQ</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="admin-dashboard.js"></script>
+</body>
+</html>

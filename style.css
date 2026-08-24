@@ -1,0 +1,568 @@
+/* =========================================================
+   Design tokens — "School Inquiry Assistant" chat widget
+   Palette:
+     --bg-a / --bg-b   page gradient (lavender -> pale blue)
+     --card            white chat surface
+     --ink             primary text (near-black indigo)
+     --ink-soft        secondary text / timestamps
+     --accent          indigo/violet brand color
+     --accent-dark     accent hover
+     --accent-soft     tint used for chips / bot bubble in dark mode
+     --online          status-dot green
+     --border          hairline borders
+   Type: 'Inter' throughout — clean, modern, chat-app feel.
+   Signature: rounded "messenger" card, avatar + live status,
+   pill quick-reply chips, gradient send button. Same language
+   is reused in a wider desktop layout via a brand side panel,
+   rather than just stretching the mobile widget.
+   ========================================================= */
+
+:root {
+  --bg-a: #ede9fe;
+  --bg-b: #e0f2fe;
+  --card: #ffffff;
+  --ink: #1e1b2e;
+  --ink-soft: #6b7280;
+  --accent: #6366f1;
+  --accent-dark: #4f46e5;
+  --accent-soft: #eef0ff;
+  --online: #22c55e;
+  --border: #e7e5f5;
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+:root[data-theme="dark"] {
+  --bg-a: #14121f;
+  --bg-b: #0f172a;
+  --card: #1c1a2b;
+  --ink: #f1f0f7;
+  --ink-soft: #9691b0;
+  --accent: #818cf8;
+  --accent-dark: #6366f1;
+  --accent-soft: #2a2740;
+  --online: #4ade80;
+  --border: #2f2c45;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, var(--bg-a) 0%, var(--bg-b) 100%);
+}
+
+/* ---------------- Shell / card ---------------- */
+
+.chat-shell {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 50px -20px rgba(30, 27, 46, 0.35), 0 2px 8px rgba(30, 27, 46, 0.08);
+  overflow: hidden;
+  display: flex;
+  border: 1px solid var(--border);
+}
+
+.brand-panel { display: none; }
+
+.chat-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: min(680px, 82vh);
+}
+
+/* ---------------- Header ---------------- */
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.mark-icon {
+  width: 55%;
+  height: 55%;
+  display: block;
+}
+
+.header-text { flex: 1; min-width: 0; }
+
+.assistant-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.status-line {
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  flex-shrink: 0;
+}
+.status-line[data-state="online"] .status-dot { background: var(--online); }
+.status-line[data-state="offline"] .status-dot { background: #ef4444; }
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+.icon-btn:hover, .icon-btn:focus-visible { background: var(--accent-soft); outline: none; }
+
+.menu-wrap { position: relative; flex-shrink: 0; }
+
+.popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px -12px rgba(30, 27, 46, 0.35);
+  padding: 12px;
+  width: 190px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The [hidden] attribute and .popover{display:flex} have equal CSS
+   specificity, so without this rule the later one (ours) wins and the
+   popover never actually hides. This rule breaks that tie. */
+.popover[hidden] {
+  display: none;
+}
+
+.popover-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.popover select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+}
+
+/* ---------------- Chat log ---------------- */
+
+.chat-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bubble-group {
+  display: flex;
+  flex-direction: column;
+  max-width: 82%;
+  margin-bottom: 12px;
+}
+.bubble-group.from-user { align-self: flex-end; align-items: flex-end; }
+.bubble-group.from-bot { align-self: flex-start; align-items: flex-start; }
+
+.bubble {
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+.bubble-bot {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-top-left-radius: 4px;
+}
+
+.bubble-user {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+.bubble-typing { color: var(--ink-soft); font-style: italic; }
+
+.bubble-time {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.read-receipt {
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: -2px;
+}
+
+.feedback-bar {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.feedback-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.feedback-btn:hover, .feedback-btn:focus-visible { background: var(--accent-soft); outline: none; }
+.feedback-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------------- Answer card ----------------
+   A richer alternative to a plain bot bubble, used only for
+   matched FAQ answers (not the typing indicator, greeting, or
+   fallback message, which stay as simple bubbles). Surfaces
+   fields the schema already had but weren't shown to students:
+   last_verified -> the Verified badge + footer date,
+   source_name/source_url -> the Sources block. */
+
+.answer-card {
+  align-self: flex-start;
+  max-width: 92%;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.answer-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.answer-card__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.answer-card__avatar .mark-icon { width: 60%; height: 60%; }
+
+.answer-card__title { flex: 1; min-width: 0; }
+.answer-card__name { margin: 0; font-size: 0.85rem; font-weight: 700; }
+.answer-card__subtitle { margin: 1px 0 0; font-size: 0.75rem; color: var(--ink-soft); }
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--online) 18%, transparent);
+  color: var(--online);
+  flex-shrink: 0;
+}
+
+.answer-card__body {
+  padding: 14px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.answer-card__body p { margin: 0 0 10px; }
+.answer-card__body p:last-child { margin-bottom: 0; }
+.answer-card__body ul { margin: 0 0 10px; padding-left: 20px; }
+.answer-card__body li { margin-bottom: 4px; }
+
+.answer-card__sources {
+  padding: 0 14px 14px;
+}
+
+.sources-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.source-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink);
+}
+.source-link:hover, .source-link:focus-visible { background: var(--accent-soft); outline: none; }
+
+.source-icon { flex-shrink: 0; font-size: 1rem; }
+.source-text { flex: 1; min-width: 0; font-size: 0.78rem; }
+.source-name { display: block; font-weight: 500; }
+.source-url {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.external-icon { flex-shrink: 0; color: var(--ink-soft); }
+
+.answer-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.verified-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.answer-card__footer .feedback-bar {
+  margin-top: 0;
+}
+
+/* ---------------- Quick chips ---------------- */
+
+.quick-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px 12px;
+  flex-shrink: 0;
+}
+
+.chip {
+  background: var(--accent-soft);
+  border: 1px solid transparent;
+  color: var(--accent-dark);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+.chip:hover, .chip:focus-visible { background: var(--accent); color: #fff; outline: none; }
+.chip.selected {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  box-shadow: 0 6px 16px -8px rgba(99, 102, 241, 0.6);
+}
+
+/* ---------------- Composer ---------------- */
+
+.chat-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.chat-form input {
+  flex: 1;
+  padding: 11px 15px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--bg-a);
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--card));
+  color: var(--ink);
+}
+.chat-form input::placeholder { color: var(--ink-soft); }
+.chat-form input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.send-btn:hover, .send-btn:focus-visible { filter: brightness(1.08); outline: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bubble-group { animation: rise 0.2s ease-out; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   Desktop layout: reveal the brand panel and widen the shell
+   into a two-pane "support hub" rather than a stretched widget.
+   ========================================================= */
+
+@media (min-width: 900px) {
+  .chat-shell {
+    max-width: 900px;
+  }
+
+  .brand-panel {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    flex-shrink: 0;
+    padding: 32px 26px;
+    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+  }
+
+  .brand-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 18px;
+  }
+
+  .brand-title {
+    margin: 0 0 10px;
+    font-size: 1.4rem;
+    line-height: 1.25;
+  }
+
+  .brand-tagline {
+    margin: 0 0 24px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .brand-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .brand-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: left;
+  }
+  .brand-link-btn:hover, .brand-link-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.18);
+    outline: none;
+  }
+  .brand-link-btn.selected {
+    background: #fff;
+    color: var(--accent-dark);
+    font-weight: 600;
+  }
+
+  .chat-panel { height: 640px; }
+}
