@@ -165,7 +165,7 @@ async function browseCategory(category) {
       .order("priority", { ascending: false })
       .limit(5);
 
-    typingBubble.remove();
+    typingBubble.closest(".bubble-group").remove();
     if (error) throw error;
 
     await supabase.from("chatbot_logs").insert({
@@ -189,7 +189,7 @@ async function browseCategory(category) {
     }
   } catch (err) {
     console.error(err);
-    typingBubble.remove();
+    typingBubble.closest(".bubble-group").remove();
     addBotBubble(
       "I'm having trouble reaching the records system right now. Please try again shortly."
     );
@@ -217,11 +217,11 @@ async function handleSubmit(event) {
 
   try {
     const result = await answerQuestion(message);
-    typingBubble.remove();
+    typingBubble.closest(".bubble-group").remove();
     renderAnswer(result);
   } catch (err) {
     console.error(err);
-    typingBubble.remove();
+    typingBubble.closest(".bubble-group").remove();
     addBotBubble(
       "I'm having trouble reaching the records system right now. Please try again shortly."
     );
