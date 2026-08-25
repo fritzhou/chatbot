@@ -93,11 +93,23 @@ function wireMenu() {
 // the desktop brand-panel sidebar from the same Supabase data.
 // ---------------------------------------------------------
 async function loadCategories() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name")
-    .eq("is_active", true)
-    .order("name");
+  let data, error;
+  try {
+    ({ data, error } = await supabase
+      .from("categories")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("name"));
+  } catch (err) {
+    // A paused/unreachable Supabase project, a wrong URL/key, or a
+    // network failure can all cause the request itself to throw
+    // instead of resolving with a clean { error } — without this
+    // catch, that left the status stuck on "Connecting…" forever
+    // with no feedback at all.
+    console.error("Failed to reach Supabase", err);
+    setStatus("offline");
+    return;
+  }
 
   if (error) {
     console.error("Failed to load categories", error);
@@ -185,7 +197,7 @@ async function browseCategory(category) {
     }
 
     for (const faq of data) {
-      addAnswerCard(faq, null);
+      await addAnswerCard(faq, null);
     }
   } catch (err) {
     console.error(err);
@@ -311,7 +323,7 @@ function renderAnswer({ matchedFaq, chatLogId }) {
  * light bullet-list support), a Sources block when the FAQ has a
  * source_url, and a footer with the verified date + feedback.
  */
-function addAnswerCard(faq, chatLogId) {
+async function addAnswerCard(faq, chatLogId) {
   const card = document.createElement("div");
   card.className = "answer-card";
 
@@ -327,18 +339,32 @@ function addAnswerCard(faq, chatLogId) {
       ${isVerified ? `<span class="verified-badge">✓ Verified</span>` : ""}
     </div>
     <div class="answer-card__body">${formatAnswerText(faq.answer)}</div>
-    ${faq.source_url ? renderSources(faq) : ""}
-    <div class="answer-card__footer">
-      ${isVerified ? `<span class="verified-date">🕐 ${escapeHtml(formatDate(faq.last_verified))}</span>` : "<span></span>"}
-      <span class="feedback-label">Was this answer helpful?</span>
-    </div>
   `;
 
-  const footer = card.querySelector(".answer-card__footer");
-  const feedbackBar = buildFeedbackBar(faq.id, chatLogId);
-  footer.appendChild(feedbackBar);
-
   chatLog.appendChild(card);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  // Type the answer out first, then reveal Sources + footer —
+  // feels like the assistant is actually composing the answer,
+  // rather than everything (including feedback buttons) being
+  // clickable before the text has even finished appearing.
+  const body = card.querySelector(".answer-card__body");
+  await typeWriter(body);
+
+  if (faq.source_url) {
+    card.insertAdjacentHTML("beforeend", renderSources(faq));
+  }
+
+  card.insertAdjacentHTML(
+    "beforeend",
+    `<div class="answer-card__footer">
+      ${isVerified ? `<span class="verified-date">🕐 ${escapeHtml(formatDate(faq.last_verified))}</span>` : "<span></span>"}
+      <span class="feedback-label">Was this answer helpful?</span>
+    </div>`
+  );
+  const footer = card.querySelector(".answer-card__footer");
+  footer.appendChild(buildFeedbackBar(faq.id, chatLogId));
+
   chatLog.scrollTop = chatLog.scrollHeight;
   return card;
 }
@@ -433,14 +459,14 @@ function makeFeedbackButton(label, isHelpful) {
 // matching the reference chat-widget design)
 // ---------------------------------------------------------
 function addUserBubble(text) {
-  return addBubble(text, "from-user", "bubble-user", true, true);
+  return addBubble(text, "from-user", "bubble-user", true, true, false);
 }
 
 function addBotBubble(text, isTyping = false) {
-  return addBubble(text, "from-bot", "bubble-bot" + (isTyping ? " bubble-typing" : ""), !isTyping);
+  return addBubble(text, "from-bot", "bubble-bot" + (isTyping ? " bubble-typing" : ""), !isTyping, false, !isTyping);
 }
 
-function addBubble(text, groupClass, bubbleClass, showTime = true, showReadReceipt = false) {
+function addBubble(text, groupClass, bubbleClass, showTime = true, showReadReceipt = false, animate = false) {
   const group = document.createElement("div");
   group.className = `bubble-group ${groupClass}`;
 
@@ -467,11 +493,77 @@ function addBubble(text, groupClass, bubbleClass, showTime = true, showReadRecei
 
   chatLog.appendChild(group);
   chatLog.scrollTop = chatLog.scrollHeight;
+
+  if (animate) typeWriter(bubble);
+
   return bubble;
 }
 
 function formatTime(date) {
   return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+// ---------------------------------------------------------
+// Typewriter effect
+// ---------------------------------------------------------
+const PREFERS_REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Reveals an already-rendered element's text character by
+ * character, like a typing effect — without touching its HTML
+ * structure. Works on plain bubbles (one text node) and on the
+ * formatted answer-card body (multiple <p>/<li> text nodes,
+ * revealed one after another in document order) equally well,
+ * since it walks actual text nodes rather than raw HTML strings
+ * (which would risk revealing a broken half-open tag mid-type).
+ *
+ * Speed scales with content length so a one-line answer doesn't
+ * feel sluggish and a long paragraph doesn't take forever — it
+ * targets a total duration between ~400ms and ~1.8s.
+ *
+ * Respects prefers-reduced-motion: reduce by skipping the effect
+ * entirely and leaving the final text visible immediately.
+ */
+function typeWriter(el) {
+  if (PREFERS_REDUCED_MOTION) return Promise.resolve();
+
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) textNodes.push(node);
+
+  const fullTexts = textNodes.map((n) => n.textContent);
+  const totalChars = fullTexts.reduce((sum, t) => sum + t.length, 0);
+  if (totalChars === 0) return Promise.resolve();
+
+  const targetDurationMs = Math.min(1800, Math.max(400, totalChars * 14));
+  const speed = Math.max(6, targetDurationMs / totalChars);
+
+  textNodes.forEach((n) => {
+    n.textContent = "";
+  });
+
+  return new Promise((resolve) => {
+    let nodeIndex = 0;
+    let charIndex = 0;
+
+    function step() {
+      if (nodeIndex >= textNodes.length) {
+        resolve();
+        return;
+      }
+      const full = fullTexts[nodeIndex];
+      charIndex++;
+      textNodes[nodeIndex].textContent = full.slice(0, charIndex);
+      chatLog.scrollTop = chatLog.scrollHeight;
+      if (charIndex >= full.length) {
+        nodeIndex++;
+        charIndex = 0;
+      }
+      setTimeout(step, speed);
+    }
+    step();
+  });
 }
 
 function formatDate(dateStr) {
