@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>School Inquiry Assistant — Ask. Instantly. Verified.</title>
+<meta name="description" content="An always-on FAQ assistant for enrollment, tuition, the registrar, scholarships, and campus services — in English, Filipino, and Cebuano." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg-a: #ede9fe;
+    --bg-b: #e0f2fe;
+    --card: #ffffff;
+    --ink: #1e1b2e;
+    --ink-soft: #6b7280;
+    --accent: #6366f1;
+    --accent-dark: #4f46e5;
+    --accent-soft: #eef0ff;
+    --online: #22c55e;
+    --border: #e7e5f5;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg-b);
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ---------------- Nav ---------------- */
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+  }
+
+  .nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    text-decoration: none;
+  }
+
+  .nav__mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav__mark svg { width: 20px; height: 20px; }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 11px 22px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.55);
+  }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-ghost {
+    background: var(--card);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--accent-soft); }
+  .btn-sm { padding: 8px 16px; font-size: 0.82rem; }
+
+  /* ---------------- Hero ---------------- */
+
+  .hero {
+    background: linear-gradient(150deg, var(--bg-a) 0%, var(--bg-b) 65%);
+    padding: 56px 0 80px;
+    overflow: hidden;
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 44px;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .hero__grid { grid-template-columns: 1.05fr 0.95fr; gap: 48px; }
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--online);
+  }
+
+  .hero h1 {
+    margin: 0 0 18px;
+    font-size: clamp(2rem, 4.5vw, 3.1rem);
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p.lead {
+    margin: 0 0 30px;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 480px;
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+
+  .hero__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+  }
+  .hero__note .flags { letter-spacing: 2px; }
+
+  /* ---------------- Hero mock chat preview ---------------- */
+
+  .preview {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 70px -30px rgba(30, 27, 46, 0.35);
+    overflow: hidden;
+    transform: rotate(0.6deg);
+  }
+
+  .preview__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .preview__avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview__name { font-weight: 700; font-size: 0.88rem; }
+  .preview__status {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .preview__status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--online); }
+
+  .preview__body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  .pv-msg {
+    max-width: 78%;
+    padding: 10px 13px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .pv-msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    border-top-right-radius: 4px;
+  }
+  .pv-card {
+    align-self: flex-start;
+    width: 92%;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .pv-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 11px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .pv-badge {
+    margin-left: auto;
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--online) 18%, transparent);
+    color: var(--online);
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .pv-card__body { padding: 11px; font-size: 0.8rem; line-height: 1.5; color: var(--ink); }
+  .pv-chips { display: flex; gap: 6px; padding: 0 2px; flex-wrap: wrap; }
+  .pv-chip {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    padding: 6px 11px;
+    border-radius: 999px;
+  }
+
+  /* ---------------- Sections ---------------- */
+
+  section { padding: 72px 0; }
+  .section-head { text-align: center; max-width: 620px; margin: 0 auto 44px; }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    margin: 0 0 12px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .section-head p { margin: 0; color: var(--ink-soft); font-size: 1rem; line-height: 1.6; }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 700px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .features { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+  }
+  .feature-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .feature-card h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; }
+  .feature-card p { margin: 0; font-size: 0.87rem; color: var(--ink-soft); line-height: 1.55; }
+
+  /* How it works */
+  .how {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    counter-reset: step;
+  }
+  @media (min-width: 800px) {
+    .steps { grid-template-columns: repeat(3, 1fr); }
+  }
+  .step { position: relative; padding-left: 0; }
+  .step__num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .step h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; }
+  .step p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.6; }
+
+  /* Admin section */
+  .admin-panel {
+    background: linear-gradient(150deg, var(--accent) 0%, var(--accent-dark) 100%);
+    border-radius: var(--radius-lg);
+    padding: 44px 32px;
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (min-width: 850px) {
+    .admin-panel { grid-template-columns: 1.1fr 0.9fr; padding: 52px 48px; }
+  }
+  .admin-panel h2 { margin: 0 0 12px; font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; }
+  .admin-panel p { margin: 0 0 22px; color: rgba(255,255,255,0.85); line-height: 1.65; max-width: 460px; }
+  .admin-list { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .admin-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: rgba(255,255,255,0.92); }
+  .admin-list li::before { content: "✓"; font-weight: 800; flex-shrink: 0; }
+
+  .admin-visual {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: var(--radius-md);
+    padding: 20px;
+  }
+  .admin-visual__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+    font-size: 0.82rem;
+  }
+  .admin-visual__row:last-child { border-bottom: none; }
+  .admin-visual__badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.16);
+  }
+
+  /* CTA footer */
+  .cta {
+    text-align: center;
+    padding: 90px 0 70px;
+  }
+  .cta h2 { font-size: clamp(1.6rem, 3.2vw, 2.3rem); margin: 0 0 14px; font-weight: 800; }
+  .cta p { color: var(--ink-soft); margin: 0 0 28px; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0;
+  }
+  .footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .footer__links { display: flex; gap: 18px; }
+  .footer__links a { text-decoration: none; color: var(--ink-soft); }
+  .footer__links a:hover { color: var(--accent-dark); }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <nav class="nav">
+      <a class="nav__brand" href="#top">
+        <span class="nav__mark">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4L22 9L12 14L2 9L12 4Z" fill="#FFFFFF"/>
+            <path d="M6.5 10.6V14.8C6.5 16.5 9 18 12 18C15 18 17.5 16.5 17.5 14.8V10.6L12 13.3L6.5 10.6Z" fill="#FFFFFF" fill-opacity="0.85"/>
+            <path d="M20 9V15" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="20" cy="16.3" r="1.3" fill="#FFFFFF"/>
+          </svg>
+        </span>
+        School Inquiry Assistant
+      </a>
+      <div class="nav__links">
+        <a class="btn btn-primary btn-sm" href="index.html">Open assistant</a>
+      </div>
+    </nav>
+  </div>
+
+  <header class="hero" id="top">
+    <div class="wrap hero__grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> Live &amp; answering 24/7</span>
+        <h1>Every school question, <span>answered instantly.</span></h1>
+        <p class="lead">
+          Enrollment, tuition, the registrar, scholarships, campus services —
+          one assistant that answers straight from your school's verified
+          FAQ desk, in English, Filipino, or Cebuano.
+        </p>
+        <div class="hero__ctas">
+          <a class="btn btn-primary" href="index.html">
+            Ask a question →
+          </a>
+          <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
+        </div>
+        <div class="hero__note">
+          <span class="flags">EN · FIL · CEB</span>
+          <span>&nbsp;— switch languages anytime, right in the chat.</span>
+        </div>
+      </div>
+
+      <div class="preview" aria-hidden="true">
+        <div class="preview__header">
+          <div class="preview__avatar">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:60%;height:60%;">
+              <path d="M12 4L22 9L12 14L2 9L12 4Z" fill="#FFFFFF"/>
+              <path d="M6.5 10.6V14.8C6.5 16.5 9 18 12 18C15 18 17.5 16.5 17.5 14.8V10.6L12 13.3L6.5 10.6Z" fill="#FFFFFF" fill-opacity="0.85"/>
+              <path d="M20 9V15" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="20" cy="16.3" r="1.3" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <div>
+            <div class="preview__name">School Inquiry Assistant</div>
+            <div class="preview__status"><span class="dot"></span> Online · replies instantly</div>
+          </div>
+        </div>
+        <div class="preview__body">
+          <div class="pv-msg user">Where's the registrar's office?</div>
+          <div class="pv-card">
+            <div class="pv-card__head">
+              📚 Here's what I found <span class="pv-badge">✓ Verified</span>
+            </div>
+            <div class="pv-card__body">
+              The Registrar's Office is on the main campus, Gen. Capistrano
+              Street — open Mon–Fri, 8AM–5PM.
+            </div>
+          </div>
+          <div class="pv-chips">
+            <span class="pv-chip">🏫 Admissions</span>
+            <span class="pv-chip">📝 Enrollment</span>
+            <span class="pv-chip">🎓 Scholarships</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Built for how students actually ask</h2>
+        <p>Not a static FAQ page — a real desk that understands the question, finds the right answer, and shows exactly where it came from.</p>
+      </div>
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-card__icon">⚡</div>
+          <h3>Instant matching</h3>
+          <p>Keyword-based matching finds the right answer the moment you ask — no waiting on staff replies.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🌐</div>
+          <h3>Three languages</h3>
+          <p>Ask in English, Filipino, or Cebuano — switch anytime from the chat menu.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">✓</div>
+          <h3>Verified answers</h3>
+          <p>Answers reviewed by staff carry a Verified badge and a source link, so you know it's current.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">📈</div>
+          <h3>Always improving</h3>
+          <p>Questions it can't answer get logged and reviewed — so the desk gets smarter every week.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how-it-works">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p>Three steps, no waiting in line.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <h3>Ask anything</h3>
+          <p>Type your question or tap a category — enrollment, tuition, scholarships, and more.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <h3>Get matched instantly</h3>
+          <p>The assistant checks your question against the school's official, up-to-date FAQ desk.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <h3>See the source</h3>
+          <p>Every verified answer links back to where it came from, so you can double-check it yourself.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="for-staff">
+    <div class="wrap">
+      <div class="admin-panel">
+        <div>
+          <h2>One dashboard for the whole knowledge base</h2>
+          <p>
+            Staff manage every answer from a single records desk — no code
+            changes, no redeployments, just edit and publish.
+          </p>
+          <ul class="admin-list">
+            <li>Create, edit, and verify FAQs by category</li>
+            <li>Review questions students asked that went unanswered</li>
+            <li>Track what's working with built-in analytics</li>
+            <li>Full audit log of every change, by who and when</li>
+          </ul>
+        </div>
+        <div class="admin-visual">
+          <div class="admin-visual__row">
+            <span>Where is the registrar's office?</span>
+            <span class="admin-visual__badge">Active</span>
+          </div>
+          <div class="admin-visual__row">
+            <span>How do I apply for a scholarship?</span>
+            <span class="admin-visual__badge">Active</span>
+          </div>
+          <div class="admin-visual__row">
+            <span>Ano ang oras ng opisina?</span>
+            <span class="admin-visual__badge">Needs review</span>
+          </div>
+          <div class="admin-visual__row">
+            <span>What's the wifi password</span>
+            <span class="admin-visual__badge">Unanswered</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>Got a question right now?</h2>
+      <p>The desk is open. Ask anything about enrollment, tuition, scholarships, or campus life.</p>
+      <a class="btn btn-primary" href="index.html">Open the assistant →</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap footer__row">
+      <span>School Inquiry Assistant — powered by your school's verified FAQ desk.</span>
+      <div class="footer__links">
+        <a href="index.html">Ask the assistant</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
