@@ -41,7 +41,7 @@ async function init() {
   wireMenu();
   await loadCategories();
   addBotBubble(
-    "Hi! I'm the School Inquiry Assistant. Ask me about enrollment, " +
+    "Hi! I'm the Lourdes College School Inquiry Assistant. Ask me about enrollment, " +
       "tuition, the registrar, scholarships, or campus services."
   );
 }
