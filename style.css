@@ -484,6 +484,8 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   .bubble-group { animation: rise 0.2s ease-out; }
+  .answer-card__sources,
+  .answer-card__footer { animation: rise 0.25s ease-out; }
 }
 @keyframes rise {
   from { opacity: 0; transform: translateY(6px); }
@@ -573,4 +575,85 @@ body {
      sidebar, so the mobile quick-chip rail would just duplicate
      it inside the chat log — hide it here. */
   .quick-chips { display: none; }
+}
+
+/* =========================================================
+   Splash screen — shown while the page connects to Supabase,
+   fades out once loadCategories() resolves (success or fail).
+   Deliberately fixed dark styling regardless of the light/dark
+   theme setting, since it's a brand moment, not chat UI.
+   ========================================================= */
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: #0b0a14;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15), 0 0 40px 10px rgba(99, 102, 241, 0.45);
+  animation: splash-pulse 1.8s ease-in-out infinite;
+}
+.splash-logo .mark-icon { width: 52%; height: 52%; }
+
+@keyframes splash-pulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15), 0 0 40px 10px rgba(99, 102, 241, 0.45); }
+  50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.22), 0 0 55px 16px rgba(99, 102, 241, 0.6); }
+}
+
+.splash-title {
+  color: #fff;
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  letter-spacing: 0.01em;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.splash-progress {
+  width: 160px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.splash-progress__bar {
+  height: 100%;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  animation: splash-loading 1.1s ease-in-out infinite;
+}
+
+@keyframes splash-loading {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-logo { animation: none; }
+  .splash-progress__bar { animation: none; width: 100%; }
 }
