@@ -12,6 +12,7 @@ const statusLabel = document.getElementById("status-label");
 const themeToggle = document.getElementById("theme-toggle");
 const menuBtn = document.getElementById("menu-btn");
 const menuPopover = document.getElementById("menu-popover");
+const splashScreen = document.getElementById("splash-screen");
 
 const FALLBACK_MESSAGE =
   "I don't have a confirmed answer for that yet. I've forwarded your " +
@@ -35,15 +36,30 @@ const CATEGORY_ICONS = {
 
 init();
 
+// The splash stays up at least this long even on a fast connection —
+// otherwise it just flashes for 50ms and looks like a glitch rather
+// than a deliberate brand moment. It hides as soon as loadCategories()
+// resolves (success OR failure — either way we're done "connecting").
+const SPLASH_MIN_MS = 700;
+
 async function init() {
   form.addEventListener("submit", handleSubmit);
   wireThemeToggle();
   wireMenu();
+
+  const splashStart = Date.now();
   await loadCategories();
+  const elapsed = Date.now() - splashStart;
+  setTimeout(hideSplash, Math.max(0, SPLASH_MIN_MS - elapsed));
+
   addBotBubble(
     "Hi! I'm the Lourdes College School Inquiry Assistant. Ask me about enrollment, " +
       "tuition, the registrar, scholarships, or campus services."
   );
+}
+
+function hideSplash() {
+  if (splashScreen) splashScreen.classList.add("hidden");
 }
 
 // ---------------------------------------------------------
@@ -51,8 +67,7 @@ async function init() {
 // ---------------------------------------------------------
 function wireThemeToggle() {
   const saved = localStorage.getItem("faq-theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  setTheme(saved || (prefersDark ? "dark" : "light"));
+  setTheme(saved || "light");
 
   themeToggle.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
